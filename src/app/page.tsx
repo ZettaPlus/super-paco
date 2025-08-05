@@ -1,103 +1,306 @@
-import Image from "next/image";
+'use client'
+
+import { useEffect, useState } from 'react'
+import { Ruleta } from '@/components/Ruleta'
+import { loadConfig, saveConfig } from '@/utils/config'
+
+type Slot = { id: string; label: string; background: string; video?: string; textOrientation?: 'horizontal' | 'vertical' }
+
+const defaultSlots: Slot[] = [
+  { id: '1', label: '100', background: '#fbbf24', textOrientation: 'horizontal' },
+  { id: '2', label: '500', background: '#3b82f6', textOrientation: 'horizontal' },
+  { id: '3', label: '10', background: '#fbbf24', textOrientation: 'horizontal' },
+  { id: '4', label: '200', background: '#ec4899', textOrientation: 'horizontal' },
+  { id: '5', label: '30', background: '#fbbf24', textOrientation: 'horizontal' },
+  { id: '6', label: '1000', background: '#3b82f6', textOrientation: 'horizontal' },
+  { id: '7', label: '700', background: '#fbbf24', textOrientation: 'horizontal' },
+  { id: '8', label: '5', background: '#ec4899', textOrientation: 'horizontal' },
+  { id: '9', label: '2000', background: '#fbbf24', textOrientation: 'horizontal' },
+  { id: '10', label: '300', background: '#3b82f6', textOrientation: 'horizontal' },
+  { id: '11', label: '50', background: '#fbbf24', textOrientation: 'horizontal' },
+  { id: '12', label: '600', background: '#ec4899', textOrientation: 'horizontal' }
+]
 
 export default function Home() {
-  return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+  const [slots, setSlots] = useState<Slot[]>(defaultSlots)
+  const [duration, setDuration] = useState(4000)
+  const [winner, setWinner] = useState<Slot | null>(null)
+  const [showConfig, setShowConfig] = useState(false)
+  const [showVideo, setShowVideo] = useState(false)
+  const [currentVideo, setCurrentVideo] = useState('')
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+  useEffect(() => {
+    const savedSlots = loadConfig<Slot[]>('ruleta-slots', defaultSlots)
+    const savedDuration = loadConfig<number>('ruleta-duration', 4000)
+    setSlots(savedSlots)
+    setDuration(savedDuration)
+  }, [])
+
+  const updateSlot = (id: string, field: keyof Slot, value: string) => {
+    setSlots(prev => prev.map(s => s.id === id ? { ...s, [field]: value } : s))
+  }
+
+  const addSlot = () => {
+    const newId = (slots.length + 1).toString()
+    const colors = ['#fbbf24', '#3b82f6', '#ec4899']
+    const randomColor = colors[Math.floor(Math.random() * colors.length)]
+    setSlots(prev => [...prev, { id: newId, label: '100', background: randomColor, textOrientation: 'horizontal' }])
+  }
+
+  const removeSlot = (id: string) => {
+    if (slots.length > 2) {
+      setSlots(prev => prev.filter(s => s.id !== id))
+    }
+  }
+
+  const handleSaveConfig = () => {
+    saveConfig('ruleta-slots', slots)
+    saveConfig('ruleta-duration', duration)
+    setShowConfig(false)
+  }
+
+  const handleSpinEnd = (winner: Slot) => {
+    setWinner(winner)
+    if (winner.video) {
+      setCurrentVideo(convertToEmbedUrl(winner.video))
+      setShowVideo(true)
+    }
+  }
+
+  const closeVideo = () => {
+    setShowVideo(false)
+    setCurrentVideo('')
+  }
+
+  const convertToEmbedUrl = (url: string): string => {
+    // Convertir URL de YouTube a formato embed
+    if (url.includes('youtube.com/watch?v=')) {
+      const videoId = url.split('v=')[1]?.split('&')[0]
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : url
+    }
+    if (url.includes('youtu.be/')) {
+      const videoId = url.split('youtu.be/')[1]?.split('?')[0]
+      return videoId ? `https://www.youtube.com/embed/${videoId}` : url
+    }
+    return url
+  }
+
+  if (showConfig) {
+    return (
+      <div className="min-h-screen p-8 bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200">
+        <div className="max-w-6xl mx-auto">
+          <div className="flex justify-between items-center mb-8">
+            <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent drop-shadow-lg">⚙️ Configuración</h1>
+            <button
+              onClick={() => setShowConfig(false)}
+              className="px-6 py-3 bg-gradient-to-r from-gray-500 to-gray-600 hover:from-gray-600 hover:to-gray-700 text-white rounded-xl font-semibold transition-all shadow-lg active:scale-95"
+            >
+              ← Volver a la Ruleta
+            </button>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* Panel de configuración */}
+            <div className="bg-white p-8 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4">Configuración</h2>
+              
+              <div className="mb-6">
+                <label className="block text-lg font-semibold mb-3 text-gray-700">Configuración de Animación</label>
+                <div className="space-y-3">
+                  <div>
+                    <label className="block text-sm font-medium mb-3 text-gray-700">Duración de la animación</label>
+                    <div className="relative">
+                      <input
+                        type="range"
+                        value={duration}
+                        onChange={(e) => setDuration(Number(e.target.value))}
+                        className="w-full h-3 bg-gradient-to-r from-gray-200 to-gray-300 rounded-lg appearance-none cursor-pointer shadow-inner"
+                        min="1000"
+                        max="10000"
+                        step="500"
+                      />
+                      <div className="flex justify-between text-sm text-gray-600 mt-2">
+                        <span className="font-medium">1s</span>
+                        <span className="font-bold text-blue-600 bg-blue-100 px-2 py-1 rounded">{duration}ms</span>
+                        <span className="font-medium">10s</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div className="mb-6">
+                <div className="flex justify-between items-center mb-4">
+                  <label className="text-lg font-semibold">Secciones de la Ruleta</label>
+                  <button
+                    onClick={addSlot}
+                    className="px-6 py-3 bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white rounded-xl font-semibold transition-all shadow-lg active:scale-95"
+                  >
+                    ➕ Agregar Sección
+                  </button>
+                </div>
+                
+                <div className="grid gap-4 max-h-96 overflow-y-auto p-2">
+                  {slots.map((slot) => (
+                    <div key={slot.id} className="border border-gray-200 p-5 rounded-xl bg-gradient-to-br from-white to-gray-50 shadow-md hover:shadow-lg transition-all">
+                      <div className="space-y-3">
+                        <div className="flex items-center gap-4">
+                          <div 
+                            className="w-10 h-10 rounded-full border-3 border-white shadow-lg ring-2 ring-gray-200"
+                            style={{ backgroundColor: slot.background }}
+                          />
+                          <input
+                            type="text"
+                            value={slot.label}
+                            onChange={(e) => updateSlot(slot.id, 'label', e.target.value)}
+                            placeholder="Valor (ej: 100, 500, 1000)"
+                            className="flex-1 p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                          />
+                          <input
+                            type="color"
+                            value={slot.background}
+                            onChange={(e) => updateSlot(slot.id, 'background', e.target.value)}
+                            className="w-12 h-12 border-2 border-gray-300 rounded-lg cursor-pointer shadow-sm hover:shadow-md transition-shadow"
+                            title="Seleccionar color"
+                          />
+                          {slots.length > 2 && (
+                            <button
+                              onClick={() => removeSlot(slot.id)}
+                              className="px-4 py-3 bg-gradient-to-r from-red-500 to-red-600 hover:from-red-600 hover:to-red-700 text-white rounded-lg font-semibold transition-all shadow-md active:scale-95"
+                              title="Eliminar sección"
+                            >
+                              🗑️
+                            </button>
+                          )}
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2 text-gray-700">Video (opcional)</label>
+                          <input
+                            type="url"
+                            value={slot.video || ''}
+                            onChange={(e) => updateSlot(slot.id, 'video', e.target.value)}
+                            placeholder="URL del video (ej: https://ejemplo.com/video.mp4)"
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium mb-2 text-gray-700">Orientación del texto</label>
+                          <select
+                            value={slot.textOrientation || 'horizontal'}
+                            onChange={(e) => updateSlot(slot.id, 'textOrientation', e.target.value)}
+                            className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                          >
+                            <option value="horizontal">Horizontal</option>
+                            <option value="vertical">Vertical</option>
+                          </select>
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              <button
+                onClick={handleSaveConfig}
+                className="w-full bg-gradient-to-r from-green-500 to-green-600 hover:from-green-600 hover:to-green-700 text-white py-3 rounded-lg font-semibold text-lg transition-all shadow-lg active:scale-95"
+              >
+                💾 Guardar Configuración
+              </button>
+            </div>
+
+            {/* Vista previa de la ruleta */}
+            <div className="bg-white p-8 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.1)] border border-gray-200">
+              <h2 className="text-xl font-semibold mb-4">Vista Previa</h2>
+              <div className="flex justify-center">
+                <Ruleta
+                  slots={slots}
+                  duration={duration}
+                  onEnd={handleSpinEnd}
+                />
+              </div>
+              {winner && (
+                <div className="mt-6 p-4 bg-gradient-to-r from-green-100 to-green-200 rounded-xl text-center shadow-lg border border-green-300">
+                  <p className="font-bold text-lg text-green-800">🎉 ¡Ganador!</p>
+                  <p className="font-semibold text-xl text-green-900 mt-1">{winner.label}</p>
+                </div>
+              )}
+            </div>
+          </div>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
+      </div>
+    )
+  }
+
+  return (
+    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex flex-col">
+      {/* Contenido principal */}
+      <div className="flex-1 flex flex-col items-center justify-center p-4 relative">
+        {/* Logo Superepa.co */}
+        <div className="absolute top-8 left-1/2 transform -translate-x-1/2 z-10">
+          <img 
+            src="/logo-superepa.png" 
+            alt="Super epa.co" 
+            className="h-16 w-auto drop-shadow-lg"
           />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
+        </div>
+        
+        <div className="relative">
+          <Ruleta
+            slots={slots}
+            duration={duration}
+            onEnd={handleSpinEnd}
           />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+          
+
+        </div>
+        
+        {/* Botón de configuración discreto */}
+        <button
+          onClick={() => setShowConfig(true)}
+          className="fixed top-4 right-4 p-3 bg-white/80 hover:bg-white text-gray-600 hover:text-gray-800 rounded-full shadow-md transition-all backdrop-blur-sm"
+          title="Configurar ruleta"
         >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          ⚙️
+        </button>
+      </div>
+
+      {/* Modal de video */}
+      {showVideo && (
+        <div className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-6 max-w-4xl w-full max-h-[90vh] overflow-hidden">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="text-xl font-semibold">🎬 Video del Ganador</h3>
+              <button
+                onClick={closeVideo}
+                className="text-gray-500 hover:text-gray-700 text-2xl font-bold"
+              >
+                ×
+              </button>
+            </div>
+            <div className="aspect-video bg-black rounded-lg overflow-hidden">
+              {currentVideo.includes('youtube.com/embed') ? (
+                <iframe
+                  src={currentVideo}
+                  title="Video del ganador"
+                  className="w-full h-full"
+                  frameBorder="0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+                  allowFullScreen
+                />
+              ) : (
+                <video
+                  src={currentVideo}
+                  controls
+                  autoPlay
+                  className="w-full h-full object-contain"
+                >
+                  Tu navegador no soporta el elemento video.
+                </video>
+              )}
+            </div>
+          </div>
+        </div>
+      )}
     </div>
-  );
+  )
 }
