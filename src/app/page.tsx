@@ -24,6 +24,7 @@ const defaultSlots: Slot[] = [
 export default function Home() {
   const [slots, setSlots] = useState<Slot[]>(defaultSlots)
   const [duration, setDuration] = useState(4000)
+  const [backgroundImage, setBackgroundImage] = useState('')
   const [winner, setWinner] = useState<Slot | null>(null)
   const [showConfig, setShowConfig] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
@@ -32,8 +33,10 @@ export default function Home() {
   useEffect(() => {
     const savedSlots = loadConfig<Slot[]>('ruleta-slots', defaultSlots)
     const savedDuration = loadConfig<number>('ruleta-duration', 4000)
+    const savedBackground = loadConfig<string>('ruleta-background', '')
     setSlots(savedSlots)
     setDuration(savedDuration)
+    setBackgroundImage(savedBackground)
   }, [])
 
   const updateSlot = (id: string, field: keyof Slot, value: string) => {
@@ -56,6 +59,7 @@ export default function Home() {
   const handleSaveConfig = () => {
     saveConfig('ruleta-slots', slots)
     saveConfig('ruleta-duration', duration)
+    saveConfig('ruleta-background', backgroundImage)
     setShowConfig(false)
   }
 
@@ -87,7 +91,15 @@ export default function Home() {
 
   if (showConfig) {
     return (
-      <div className="min-h-screen p-8 bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200">
+      <div 
+        className="min-h-screen p-8"
+        style={{
+          backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(to bottom right, #f3f4f6, #f9fafb, #e5e7eb)',
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat'
+        }}
+      >
         <div className="max-w-6xl mx-auto">
           <div className="flex justify-between items-center mb-8">
             <h1 className="text-4xl font-bold bg-gradient-to-r from-red-600 to-yellow-500 bg-clip-text text-transparent drop-shadow-lg">⚙️ Configuración</h1>
@@ -105,8 +117,8 @@ export default function Home() {
               <h2 className="text-xl font-semibold mb-4">Configuración</h2>
               
               <div className="mb-6">
-                <label className="block text-lg font-semibold mb-3 text-gray-700">Configuración de Animación</label>
-                <div className="space-y-3">
+                <label className="block text-lg font-semibold mb-3 text-gray-700">Configuración General</label>
+                <div className="space-y-4">
                   <div>
                     <label className="block text-sm font-medium mb-3 text-gray-700">Duración de la animación</label>
                     <div className="relative">
@@ -125,6 +137,34 @@ export default function Home() {
                         <span className="font-medium">10s</span>
                       </div>
                     </div>
+                  </div>
+                  
+                  <div>
+                    <label className="block text-sm font-medium mb-2 text-gray-700">Imagen de fondo (opcional)</label>
+                    <input
+                      type="url"
+                      value={backgroundImage}
+                      onChange={(e) => setBackgroundImage(e.target.value)}
+                      placeholder="URL de la imagen de fondo (ej: https://ejemplo.com/fondo.jpg)"
+                      className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
+                    />
+                    {backgroundImage && (
+                      <div className="mt-2">
+                        <label className="block text-sm font-medium mb-2 text-gray-700">Vista previa del fondo:</label>
+                        <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden border">
+                          <img 
+                            src={backgroundImage} 
+                            alt="Vista previa del fondo"
+                            className="w-full h-full object-cover"
+                            onError={(e) => {
+                              e.currentTarget.style.display = 'none'
+                              e.currentTarget.nextElementSibling!.textContent = 'Error al cargar la imagen'
+                            }}
+                          />
+                          <div className="hidden text-center text-gray-500 text-sm py-8">Error al cargar la imagen</div>
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -232,7 +272,15 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200 flex flex-col">
+    <div 
+      className="min-h-screen flex flex-col"
+      style={{
+        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(to bottom right, #f3f4f6, #f9fafb, #e5e7eb)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       {/* Contenido principal */}
       <div className="flex-1 flex flex-col items-center justify-center p-4 relative">
         {/* Logo Superepa.co */}
