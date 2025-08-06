@@ -6,6 +6,12 @@ import { loadConfig, saveConfig } from '@/utils/config'
 
 type Slot = { id: string; label: string; background: string; video?: string; textOrientation?: 'horizontal' | 'vertical' }
 
+type FileData = {
+  name: string
+  data: string // base64
+  type: string
+}
+
 const defaultSlots: Slot[] = [
   { id: '1', label: '100', background: '#fbbf24', textOrientation: 'horizontal' },
   { id: '2', label: '500', background: '#3b82f6', textOrientation: 'horizontal' },
@@ -24,7 +30,7 @@ const defaultSlots: Slot[] = [
 export default function Home() {
   const [slots, setSlots] = useState<Slot[]>(defaultSlots)
   const [duration, setDuration] = useState(4000)
-  const [backgroundImage, setBackgroundImage] = useState('')
+  const [backgroundFile, setBackgroundFile] = useState<FileData | null>(null)
   const [winner, setWinner] = useState<Slot | null>(null)
   const [showConfig, setShowConfig] = useState(false)
   const [showVideo, setShowVideo] = useState(false)
@@ -33,10 +39,10 @@ export default function Home() {
   useEffect(() => {
     const savedSlots = loadConfig<Slot[]>('ruleta-slots', defaultSlots)
     const savedDuration = loadConfig<number>('ruleta-duration', 4000)
-    const savedBackground = loadConfig<string>('ruleta-background', '')
+    const savedBackground = loadConfig<FileData | null>('ruleta-background', null)
     setSlots(savedSlots)
     setDuration(savedDuration)
-    setBackgroundImage(savedBackground)
+    setBackgroundFile(savedBackground)
   }, [])
 
   const updateSlot = (id: string, field: keyof Slot, value: string) => {
@@ -59,7 +65,7 @@ export default function Home() {
   const handleSaveConfig = () => {
     saveConfig('ruleta-slots', slots)
     saveConfig('ruleta-duration', duration)
-    saveConfig('ruleta-background', backgroundImage)
+    saveConfig('ruleta-background', backgroundFile)
     setShowConfig(false)
   }
 
@@ -89,12 +95,34 @@ export default function Home() {
     return url
   }
 
+  const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>, type: 'background' | 'video', slotId?: string) => {
+    const file = event.target.files?.[0]
+    if (!file) return
+
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      const fileData: FileData = {
+        name: file.name,
+        data: result,
+        type: file.type
+      }
+
+      if (type === 'background') {
+        setBackgroundFile(fileData)
+      } else if (type === 'video' && slotId) {
+        setSlots(prev => prev.map(s => s.id === slotId ? { ...s, video: result } : s))
+      }
+    }
+    reader.readAsDataURL(file)
+  }
+
   if (showConfig) {
     return (
       <div 
         className="min-h-screen p-8"
         style={{
-          backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(to bottom right, #f3f4f6, #f9fafb, #e5e7eb)',
+          backgroundImage: backgroundFile ? `url(${backgroundFile.data})` : 'linear-gradient(to bottom right, #f3f4f6, #f9fafb, #e5e7eb)',
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
@@ -142,18 +170,17 @@ export default function Home() {
                   <div>
                     <label className="block text-sm font-medium mb-2 text-gray-700">Imagen de fondo (opcional)</label>
                     <input
-                      type="url"
-                      value={backgroundImage}
-                      onChange={(e) => setBackgroundImage(e.target.value)}
-                      placeholder="URL de la imagen de fondo (ej: https://ejemplo.com/fondo.jpg)"
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleFileChange(e, 'background')}
                       className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                     />
-                    {backgroundImage && (
+                    {backgroundFile && (
                       <div className="mt-2">
                         <label className="block text-sm font-medium mb-2 text-gray-700">Vista previa del fondo:</label>
                         <div className="w-full h-32 bg-gray-100 rounded-lg overflow-hidden border">
                           <img 
-                            src={backgroundImage} 
+                            src={backgroundFile.data} 
                             alt="Vista previa del fondo"
                             className="w-full h-full object-cover"
                             onError={(e) => {
@@ -163,6 +190,7 @@ export default function Home() {
                           />
                           <div className="hidden text-center text-gray-500 text-sm py-8">Error al cargar la imagen</div>
                         </div>
+                        <p className="text-xs text-gray-500 mt-1">{backgroundFile.name}</p>
                       </div>
                     )}
                   </div>
@@ -216,12 +244,14 @@ export default function Home() {
                         <div>
                           <label className="block text-sm font-medium mb-2 text-gray-700">Video (opcional)</label>
                           <input
-                            type="url"
-                            value={slot.video || ''}
-                            onChange={(e) => updateSlot(slot.id, 'video', e.target.value)}
-                            placeholder="URL del video (ej: https://ejemplo.com/video.mp4)"
+                            type="file"
+                            accept="video/*"
+                            onChange={(e) => handleFileChange(e, 'video', slot.id)}
                             className="w-full p-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent shadow-sm"
                           />
+                          {slot.video && (
+                            <p className="text-xs text-gray-500 mt-1">Video cargado</p>
+                          )}
                         </div>
                         <div>
                           <label className="block text-sm font-medium mb-2 text-gray-700">Orientación del texto</label>
@@ -275,7 +305,7 @@ export default function Home() {
     <div 
       className="min-h-screen flex flex-col"
       style={{
-        backgroundImage: backgroundImage ? `url(${backgroundImage})` : 'linear-gradient(to bottom right, #f3f4f6, #f9fafb, #e5e7eb)',
+        backgroundImage: backgroundFile ? `url(${backgroundFile.data})` : 'linear-gradient(to bottom right, #f3f4f6, #f9fafb, #e5e7eb)',
         backgroundSize: 'cover',
         backgroundPosition: 'center',
         backgroundRepeat: 'no-repeat'
