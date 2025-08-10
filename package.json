@@ -5,13 +5,14 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "build:next": "next build && next export -o out",
-    "tauri:dev": "npm run dev & npm run build:next & cd src-tauri && tauri dev",
-    "tauri:build": "npm run build:next && cd src-tauri && tauri build",
+    "build:next": "next build",
+    "desktop:dev": "npm run dev & cd src-tauri && tauri dev",
+    "desktop:build": "npm run build:next && cd src-tauri && tauri build",
     "start": "next start",
     "lint": "next lint"
   },
   "dependencies": {
+    "canvas-confetti": "^1.9.3",
     "gsap": "^3.13.0",
     "next": "15.4.5",
     "react": "19.1.0",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@eslint/eslintrc": "^3",
     "@tailwindcss/postcss": "^4",
+    "@types/canvas-confetti": "^1.9.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
