@@ -76,7 +76,7 @@ export default function Home() {
 
   return (
     <div 
-      className="min-h-screen flex flex-col relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200"
+      className="min-h-[100dvh] flex flex-col relative overflow-hidden bg-gradient-to-br from-gray-100 via-gray-50 to-gray-200"
     >
       {/* Fondo con imagen rotada -90° cubriendo completamente */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
@@ -89,20 +89,16 @@ export default function Home() {
             top: '50%',
             transform: 'translate(-50%, -50%) rotate(-90deg)',
             transformOrigin: 'center center',
-            width: '100vh',
-            height: '100vw',
+            width: '100dvh',
+            height: '100dvw',
             objectFit: 'cover'
           }}
         />
       </div>
 
-      <div className="flex-1 flex flex-col items-start justify-center p-4 lg:pl-56 relative z-10">
-        <div className="relative self-start">
-          <Ruleta
-            slots={slots}
-            onEnd={handleSpinEnd}
-            weights={weights}
-          />
+      <div className="flex-1 relative z-10">
+        <div className="absolute left-[35vw] top-1/2 -translate-x-1/2 -translate-y-1/2">
+          <Ruleta slots={slots} onEnd={handleSpinEnd} weights={weights} />
         </div>
         {/* Imagen de premio según resultado: overlay a pantalla completa, rotada -90° */}
         {winner && (
@@ -121,8 +117,8 @@ export default function Home() {
                 top: '50%',
                 transform: 'translate(-50%, -50%) rotate(-90deg)',
                 transformOrigin: 'center center',
-                width: '100vh',
-                height: '100vw',
+                width: '100dvh',
+                height: '100dvw',
                 objectFit: 'cover'
               }}
             />

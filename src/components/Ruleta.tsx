@@ -19,15 +19,26 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
   // Escalar la ruleta para ocupar casi toda la pantalla
   useEffect(() => {
     const baseSize = 600
+    const getViewport = () => {
+      if (typeof window === 'undefined') return { w: baseSize, h: baseSize }
+      const vv = window.visualViewport
+      return vv ? { w: vv.width, h: vv.height } : { w: window.innerWidth, h: window.innerHeight }
+    }
     const recalc = () => {
-      const h = typeof window !== 'undefined' ? window.innerHeight : baseSize
-      const w = typeof window !== 'undefined' ? window.innerWidth : baseSize
+      const { h, w } = getViewport()
       const s = Math.min(h / baseSize, w / baseSize)
       setScale(s)
     }
     recalc()
     window.addEventListener('resize', recalc)
-    return () => window.removeEventListener('resize', recalc)
+    const vv = window.visualViewport
+    vv?.addEventListener('resize', recalc)
+    vv?.addEventListener('scroll', recalc)
+    return () => {
+      window.removeEventListener('resize', recalc)
+      vv?.removeEventListener('resize', recalc)
+      vv?.removeEventListener('scroll', recalc)
+    }
   }, [])
 
   const spin = () => {
@@ -86,7 +97,7 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
   }
 
   return (
-    <div className="flex flex-col items-center justify-center min-h-screen">
+    <div className="flex flex-col items-center justify-center min-h-[100dvh]">
       <div
         className="relative"
         style={{ width: 600, height: 600, transform: `scale(${scale})`, transformOrigin: 'center center' }}
@@ -222,7 +233,7 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
           </div>
         </div>
         {/* Puntero a la izquierda, apuntando hacia la derecha */}
-        <div className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-1/2">
+        <div className="absolute left-16 top-1/2 -translate-y-1/2 -translate-x-1/2">
           <div className="relative">
             {/* Sombra */}
             <div className="absolute left-0 top-1/2 -translate-y-1/2 w-0 h-0 border-l-[56px] border-t-[28px] border-b-[28px] border-t-transparent border-b-transparent border-l-black opacity-30 blur-[1px]"></div>
