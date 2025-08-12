@@ -208,18 +208,18 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
                     <g key={`label-${s.id}`}>
                       <text
                         x="100"
-                        y="52"
-                        transform={`rotate(${mid} 100 100) rotate(90 100 52)`}
+                        y="48"
+                        transform={`rotate(${mid} 100 100) rotate(90 100 48)`}
                         textAnchor="middle"
                         dominantBaseline="middle"
-                        fontSize="11"
+                        fontSize="9"
                         fill="#ffffff"
                         stroke="#000000aa"
                         strokeWidth="1.5"
                         fontWeight="700"
                         filter="url(#shadow)"
                         lengthAdjust="spacingAndGlyphs"
-                        textLength={60}
+                        textLength={52}
                         style={{ pointerEvents: 'none', paintOrder: 'stroke fill' }}
                       >
                         {s.label}
