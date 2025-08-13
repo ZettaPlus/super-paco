@@ -9,22 +9,25 @@ type Slot = { id: string; label: string; background: string; textOrientation?: '
 const generateId = () => (globalThis.crypto?.randomUUID?.() ?? `${Date.now().toString(36)}${Math.random().toString(36).slice(2, 8)}`)
 
 export default function Home() {
-  // Secuencia fija de 16 etiquetas: 5/2/5/4
-  const labels = useMemo(() => [
-    'Siga participando', 'Premio sorpresa', 'Siga participando', 'Vuelve a girar',
-    'Premio sorpresa', 'Siga participando', 'Bono sorpresa', 'Premio sorpresa',
-    'Siga participando', 'Vuelve a girar', 'Premio sorpresa', 'Siga participando',
-    'Bono sorpresa', 'Vuelve a girar', 'Siga participando', 'Vuelve a girar',
-  ], [])
-
-  // Colores alternados para mejorar contraste visual
-  const palette = ['#ef4444', '#f59e0b', '#10b981', '#3b82f6']
-  const slots: Slot[] = useMemo(() => labels.map((label, i) => ({
-    id: generateId(),
-    label,
-    background: palette[i % palette.length],
-    textOrientation: 'vertical',
-  })), [labels])
+  // Lista explícita: etiqueta + color fijo por casilla (evita cualquier desajuste)
+  const slots: Slot[] = useMemo(() => [
+    { label: 'Siga participando', background: '#10b981' },
+    { label: 'Premio sorpresa',  background: '#ef4444' },
+    { label: 'Siga participando', background: '#10b981' },
+    { label: 'Vuelve a girar',    background: '#f59e0b' },
+    { label: 'Premio sorpresa',  background: '#ef4444' },
+    { label: 'Siga participando', background: '#10b981' },
+    { label: 'Bono sorpresa',     background: '#7c3aed' },
+    { label: 'Premio sorpresa',  background: '#ef4444' },
+    { label: 'Siga participando', background: '#10b981' },
+    { label: 'Vuelve a girar',    background: '#f59e0b' },
+    { label: 'Premio sorpresa',  background: '#ef4444' },
+    { label: 'Siga participando', background: '#10b981' },
+    { label: 'Bono sorpresa',     background: '#7c3aed' },
+    { label: 'Vuelve a girar',    background: '#f59e0b' },
+    { label: 'Siga participando', background: '#10b981' },
+    { label: 'Vuelve a girar',    background: '#f59e0b' },
+  ].map(s => ({ ...s, id: generateId(), textOrientation: 'vertical' })), [])
 
   const [winner, setWinner] = useState<Slot | null>(null)
 

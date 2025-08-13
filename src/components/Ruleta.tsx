@@ -15,6 +15,14 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
   const wheelRef = useRef<SVGSVGElement>(null)
   const [isSpinning, setIsSpinning] = useState(false)
   const [scale, setScale] = useState(1)
+  const colorFor = (label: string) => {
+    const k = label.trim().toLowerCase()
+    if (k === 'siga participando') return '#10b981'
+    if (k === 'bono sorpresa') return '#7c3aed'
+    if (k === 'premio sorpresa') return '#ef4444'
+    if (k === 'vuelve a girar') return '#f59e0b'
+    return '#9ca3af'
+  }
 
   // Escalar la ruleta para ocupar casi toda la pantalla
   useEffect(() => {
@@ -137,19 +145,21 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
                     <stop offset="50%" stopColor="rgba(255,255,255,0.1)"/>
                     <stop offset="100%" stopColor="rgba(0,0,0,0.2)"/>
                   </linearGradient>
-                  {/* ClipPaths por segmento para que el texto no sobresalga */}
+                  {/* Precalcular geometría por segmento para reutilizarla en todos los renders */}
                   {slots.map((_, i) => {
-                    const start = (360 / slots.length) * i
-                    const end = (360 / slots.length) * (i + 1)
-                    const largeArcFlag = end - start <= 180 ? 0 : 1
-                    const x1 = 100 + 80 * Math.cos(start * Math.PI / 180)
-                    const y1 = 100 + 80 * Math.sin(start * Math.PI / 180)
-                    const x2 = 100 + 80 * Math.cos(end * Math.PI / 180)
-                    const y2 = 100 + 80 * Math.sin(end * Math.PI / 180)
-                    const path = `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
+                    const anglePer = 360 / slots.length
+                    const start = i * anglePer - 90
+                    const end = (i + 1) * anglePer - 90
+                    const largeArcFlag = anglePer <= 180 ? 0 : 1
+                    const r = 80
+                    const x1 = 100 + r * Math.cos(start * Math.PI / 180)
+                    const y1 = 100 + r * Math.sin(start * Math.PI / 180)
+                    const x2 = 100 + r * Math.cos(end * Math.PI / 180)
+                    const y2 = 100 + r * Math.sin(end * Math.PI / 180)
+                    const d = `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
                     return (
                       <clipPath id={`clip-seg-${i}`} key={`clip-${i}`} clipPathUnits="userSpaceOnUse">
-                        <path d={path} />
+                        <path d={d} />
                       </clipPath>
                     )
                   })}
@@ -157,39 +167,21 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
                 
                 {/* Primero: dibujar segmentos */}
                 {slots.map((s, i) => {
-                  const start = (360 / slots.length) * i
-                  const end = (360 / slots.length) * (i + 1)
-                  const largeArcFlag = end - start <= 180 ? 0 : 1
-                  
-                  const x1 = 100 + 80 * Math.cos(start * Math.PI / 180)
-                  const y1 = 100 + 80 * Math.sin(start * Math.PI / 180)
-                  const x2 = 100 + 80 * Math.cos(end * Math.PI / 180)
-                  const y2 = 100 + 80 * Math.sin(end * Math.PI / 180)
-                  
-                  const path = `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
-                  
+                  const anglePer = 360 / slots.length
+                  const start = i * anglePer - 90
+                  const end = (i + 1) * anglePer - 90
+                  const largeArcFlag = anglePer <= 180 ? 0 : 1
+                  const r = 80
+                  const x1 = 100 + r * Math.cos(start * Math.PI / 180)
+                  const y1 = 100 + r * Math.sin(start * Math.PI / 180)
+                  const x2 = 100 + r * Math.cos(end * Math.PI / 180)
+                  const y2 = 100 + r * Math.sin(end * Math.PI / 180)
+                  const d = `M 100 100 L ${x1} ${y1} A 80 80 0 ${largeArcFlag} 1 ${x2} ${y2} Z`
                   return (
                     <g key={s.id}>
-                      {/* Sombra del segmento */}
-                      <path
-                        d={path}
-                        fill="rgba(0,0,0,0.3)"
-                        transform="translate(2,2)"
-                      />
-                      {/* Segmento principal */}
-                      <path
-                        d={path}
-                        fill={s.background}
-                        stroke="#fff"
-                        strokeWidth="3"
-                        filter="url(#shadow)"
-                      />
-                      {/* Efecto de profundidad */}
-                      <path
-                        d={path}
-                        fill="url(#segmentGradient)"
-                        opacity="0.3"
-                      />
+                      <path d={d} fill="rgba(0,0,0,0.3)" transform="translate(2,2)" />
+                      <path d={d} fill={colorFor(s.label)} stroke="#fff" strokeWidth="3" filter="url(#shadow)" />
+                      <path d={d} fill="url(#segmentGradient)" opacity="0.3" />
                     </g>
                   )
                 })}
@@ -201,9 +193,9 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
 
                 {/* Textos: dentro del SVG para que giren con la ruleta y encima de los segmentos */}
                 {slots.map((s, i) => {
-                  const start = (360 / slots.length) * i
-                  const end = (360 / slots.length) * (i + 1)
-                  const mid = start + (end - start) / 2
+                  const anglePer = 360 / slots.length
+                  const start = i * anglePer
+                  const mid = start + anglePer / 2
                   return (
                     <g key={`label-${s.id}`}>
                       <text
