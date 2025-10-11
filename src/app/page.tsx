@@ -71,10 +71,10 @@ export default function Home() {
 
   const normalize = (s: string) => s.trim().toLowerCase()
   const prizeImageByLabel: Record<string, string> = {
-    'siga participando': '/prizes/siga-participando.png',
-    'bono sorpresa': '/prizes/bono-sorpresa.png',
-    'premio sorpresa': '/prizes/premio-sorpresa.png',
-    'vuelve a girar': '/prizes/vuelve-a-girar.png',
+    'siga participando': '/prizes-vertical/siga-participando.jpeg',
+    'bono sorpresa': '/prizes-vertical/bono-sorpresa.jpeg',
+    'premio sorpresa': '/prizes-vertical/premio-sorpresa.jpeg',
+    'vuelve a girar': '/prizes-vertical/vuelve-a-girar.jpeg',
   }
 
   return (
@@ -84,7 +84,7 @@ export default function Home() {
       {/* Fondo con imagen rotada -90° cubriendo completamente */}
       <div className="absolute inset-0 z-0 overflow-hidden pointer-events-none select-none">
         <img
-          src="/school-bg.png"
+          src="/bg-vertical.jpeg"
           alt="background"
           style={{
             position: 'absolute',

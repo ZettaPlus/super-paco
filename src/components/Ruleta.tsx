@@ -17,10 +17,10 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
   const [scale, setScale] = useState(1)
   const colorFor = (label: string) => {
     const k = label.trim().toLowerCase()
-    if (k === 'siga participando') return '#10b981'
-    if (k === 'bono sorpresa') return '#7c3aed'
-    if (k === 'premio sorpresa') return '#ef4444'
-    if (k === 'vuelve a girar') return '#f59e0b'
+    if (k === 'siga participando') return '#ccaf96'
+    if (k === 'bono sorpresa') return '#ce8a3d'
+    if (k === 'premio sorpresa') return '#e6312e'
+    if (k === 'vuelve a girar') return '#567633'
     return '#9ca3af'
   }
 
@@ -111,7 +111,7 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
         style={{ width: 600, height: 600, transform: `scale(${scale})`, transformOrigin: 'center center' }}
       >
         {/* Marco exterior con efecto 3D */}
-        <div className="w-[600px] h-[600px] bg-gradient-to-br from-red-800 via-red-700 to-red-600 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(0,0,0,0.5),inset_0_2px_10px_rgba(255,255,255,0.3)] border-4 border-red-900">
+        <div className="w-[600px] h-[600px] bg-gradient-to-br from-green-800 via-green-700 to-green-600 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(0,0,0,0.5),inset_0_2px_10px_rgba(255,255,255,0.3)] border-4 border-red-900">
           {/* Anillo dorado metálico */}
           <div className="w-[570px] h-[570px] bg-gradient-to-br from-yellow-400 via-yellow-500 to-yellow-600 rounded-full flex items-center justify-center shadow-[inset_0_2px_15px_rgba(0,0,0,0.3),0_2px_10px_rgba(255,215,0,0.5)] border-2 border-yellow-700">
             {/* Luces brillantes con efecto glow */}
@@ -242,7 +242,7 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights }: Props) {
         <button 
           onClick={spin}
           disabled={isSpinning}
-          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-24 h-24 rounded-full font-bold text-white text-lg transition-all shadow-[0_4px_15px_rgba(0,0,0,0.3)] z-10 ${
+          className={`absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 rotate-90 w-24 h-24 rounded-full font-bold text-white text-lg transition-all shadow-[0_4px_15px_rgba(0,0,0,0.3)] z-10 ${
             isSpinning 
               ? 'bg-gradient-to-b from-gray-500 to-gray-600 cursor-not-allowed' 
               : 'bg-gradient-to-b from-red-500 to-red-700 hover:from-red-600 hover:to-red-800 active:scale-95 active:shadow-[0_2px_8px_rgba(0,0,0,0.4)]'
