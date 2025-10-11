@@ -65,7 +65,7 @@ export default function Home() {
     ;(function frame() {
       const t = Math.min(1, (Date.now() - start) / durationMs)
       
-      let confettiConfig: any = {}
+      let confettiConfig: confetti.Options = {}
       
       if (rotation === 0) {
         // Vertical: confeti hacia la derecha
