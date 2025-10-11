@@ -58,23 +58,70 @@ export default function Home() {
 
   const handleSpinEnd = (win: Slot) => {
     setWinner(win)
-    // Confeti: “cae” hacia la derecha (simulamos gravedad horizontal con drift creciente)
+    
     const durationMs = 1200
     const start = Date.now()
+    
     ;(function frame() {
       const t = Math.min(1, (Date.now() - start) / durationMs)
-      const drift = 0.6 + 1.6 * t // acelera hacia la derecha
-      confetti({
-        particleCount: 12,
-        spread: 35,
-        startVelocity: 40,
-        gravity: 0,        // sin caída vertical
-        drift,             // "gravedad" horizontal a la derecha
-        scalar: 1.2,
-        ticks: 200,
-        angle: 0,          // vector inicial hacia la derecha
-        origin: { x: 0.0, y: Math.random() * 0.8 + 0.1 },
-      })
+      
+      let confettiConfig: any = {}
+      
+      if (rotation === 0) {
+        // Vertical: confeti hacia la derecha
+        const drift = 0.6 + 1.6 * t
+        confettiConfig = {
+          particleCount: 12,
+          spread: 35,
+          startVelocity: 40,
+          gravity: 0,
+          drift,
+          scalar: 1.2,
+          ticks: 200,
+          angle: 0,
+          origin: { x: 0.0, y: Math.random() * 0.8 + 0.1 },
+        }
+      } else if (rotation === 90) {
+        // Horizontal: confeti hacia abajo
+        confettiConfig = {
+          particleCount: 25,
+          spread: 35,
+          startVelocity: 40,
+          gravity: 1,
+          scalar: 1.2,
+          ticks: 200,
+          angle: 90,
+          origin: { x: Math.random() * 0.8 + 0.1, y: 0.0 },
+        }
+      } else if (rotation === 180) {
+        // Vertical invertido: confeti hacia la izquierda
+        const drift = -(0.6 + 1.6 * t)
+        confettiConfig = {
+          particleCount: 12,
+          spread: 35,
+          startVelocity: 40,
+          gravity: 0,
+          drift,
+          scalar: 1.2,
+          ticks: 200,
+          angle: 180,
+          origin: { x: 1.0, y: Math.random() * 0.8 + 0.1 },
+        }
+      } else if (rotation === 270) {
+        // Horizontal invertido: confeti hacia arriba
+        confettiConfig = {
+          particleCount: 25,
+          spread: 35,
+          startVelocity: 40,
+          gravity: -1,
+          scalar: 1.2,
+          ticks: 200,
+          angle: 270,
+          origin: { x: Math.random() * 0.8 + 0.1, y: 1.0 },
+        }
+      }
+      
+      confetti(confettiConfig)
       if (t < 1) requestAnimationFrame(frame)
     })()
   }
