@@ -10,9 +10,10 @@ interface Props {
   onEnd?: (winner: Slot) => void
   weights?: Record<string, number>
   rotation?: number
+  isHorizontal?: boolean
 }
 
-export function Ruleta({ slots, duration = 4000, onEnd, weights, rotation = 0 }: Props) {
+export function Ruleta({ slots, duration = 4000, onEnd, weights, rotation = 0, isHorizontal = false }: Props) {
   const wheelRef = useRef<SVGSVGElement>(null)
   const [isSpinning, setIsSpinning] = useState(false)
   const [scale, setScale] = useState(1)
@@ -105,11 +106,13 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights, rotation = 0 }:
     })
   }
 
+  const finalScale = isHorizontal ? scale * 0.8 : scale
+  
   return (
     <div className="flex flex-col items-center justify-center min-h-[100dvh]">
       <div
         className="relative"
-        style={{ width: 600, height: 600, transform: `scale(${scale}) rotate(${rotation}deg)`, transformOrigin: 'center center' }}
+        style={{ width: 600, height: 600, transform: `scale(${finalScale}) rotate(${rotation}deg)`, transformOrigin: 'center center' }}
       >
         {/* Marco exterior con efecto 3D */}
         <div className="w-[600px] h-[600px] bg-gradient-to-br from-green-800 via-green-700 to-green-600 rounded-full flex items-center justify-center shadow-[0_0_30px_rgba(0,0,0,0.5),inset_0_2px_10px_rgba(255,255,255,0.3)] border-4 border-red-900">

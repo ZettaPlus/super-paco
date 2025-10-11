@@ -172,7 +172,7 @@ export default function Home() {
           className="absolute top-1/2 -translate-x-1/2 -translate-y-1/2"
           style={{ left: getPosition() }}
         >
-          <Ruleta slots={slots} onEnd={handleSpinEnd} weights={weights} rotation={rotation} />
+          <Ruleta slots={slots} onEnd={handleSpinEnd} weights={weights} rotation={rotation} isHorizontal={isHorizontal} />
         </div>
         {/* Imagen de premio según resultado: overlay a pantalla completa */}
         {winner && (
