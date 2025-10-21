@@ -23,20 +23,20 @@ export default function Home() {
   const slots: Slot[] = useMemo(() => [
     { label: 'Siga participando', background: '#10b981' },
     { label: 'Premio sorpresa',  background: '#ef4444' },
-    { label: 'Siga participando', background: '#10b981' },
     { label: 'Vuelve a girar',    background: '#f59e0b' },
-    { label: 'Premio sorpresa',  background: '#ef4444' },
-    { label: 'Siga participando', background: '#10b981' },
     { label: 'Bono sorpresa',     background: '#7c3aed' },
-    { label: 'Premio sorpresa',  background: '#ef4444' },
     { label: 'Siga participando', background: '#10b981' },
+    { label: 'Premio sorpresa',  background: '#ef4444' },
     { label: 'Vuelve a girar',    background: '#f59e0b' },
-    { label: 'Premio sorpresa',  background: '#ef4444' },
-    { label: 'Siga participando', background: '#10b981' },
     { label: 'Bono sorpresa',     background: '#7c3aed' },
-    { label: 'Vuelve a girar',    background: '#f59e0b' },
     { label: 'Siga participando', background: '#10b981' },
+    { label: 'Premio sorpresa',  background: '#ef4444' },
     { label: 'Vuelve a girar',    background: '#f59e0b' },
+    { label: 'Bono sorpresa',     background: '#7c3aed' },
+    { label: 'Siga participando', background: '#10b981' },
+    { label: 'Premio sorpresa',  background: '#ef4444' },
+    { label: 'Vuelve a girar',    background: '#f59e0b' },
+    { label: 'Bono sorpresa',     background: '#7c3aed' },
   ].map(s => ({ ...s, id: generateId(), textOrientation: 'vertical' })), [])
 
   const [winner, setWinner] = useState<Slot | null>(null)
@@ -50,9 +50,9 @@ export default function Home() {
 
   // Probabilidades: 31%, 13%, 31%, 25%
   const weights: Record<string, number> = {
-    'siga participando': 31,
-    'bono sorpresa': 13,
-    'premio sorpresa': 31,
+    'siga participando': 25,
+    'bono sorpresa': 25,
+    'premio sorpresa': 25,
     'vuelve a girar': 25,
   }
 
