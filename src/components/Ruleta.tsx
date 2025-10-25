@@ -205,7 +205,7 @@ export function Ruleta({ slots, duration = 4000, onEnd, weights, rotation = 0, i
                       <text
                         x="100"
                         y="48"
-                        transform={`rotate(${mid} 100 100) rotate(90 100 48)`}
+                        transform={`rotate(${mid} 100 100) rotate(270 100 48)`}
                         textAnchor="middle"
                         dominantBaseline="middle"
                         fontSize="9"
